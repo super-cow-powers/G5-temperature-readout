@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+cpu_temp = []
+cpu_power = []
+total=0
+
+i=0
+
+import os
+
+cpu_type = open("/proc/cpuinfo")
+cpu_type.readline()
+
+cpu_type = cpu_type.readline().replace(',','').split(" ")[1] #In proc/cpuinfo, the model is the second line after one space.
+
+for node in os.listdir("/sys/devices/platform/windfarm.0/"): #This may differ per OS or 
+    if node.startswith("cpu-temp"):
+        cpu_temp.append(((open("/sys/devices/platform/windfarm.0/" + node).read()).strip('\n')))
+    if node.startswith("cpu-power"):
+        cpu_power.append(((open("/sys/devices/platform/windfarm.0/" + node).read()).strip('\n')))
+
+if (len(cpu_temp) != len(cpu_power)):
+    print("Something wrong here, check device files!")
+
+for i in range (0,len(cpu_temp)):
+    if (cpu_type == "PPC970MP"): #Dual Core, with Quad models
+        if (i==0):
+            print("Processor A")
+        elif (i==2):
+            print("Processor B")
+    elif (cpu_type.startswith("PPC970")): #Single core, with Dual models
+        if (i==0):
+            print("Processor A")
+        elif (i==1):
+            print("Processor B")
+
+    print ("\tCPU " + str(i) +"\n " + "\t\t" + (cpu_temp[i])," C")
+    print ("\t\t"+(cpu_power[i])," W")
+
+for i in range(0,len(cpu_power)): #cpu_power is a list of strings.
+    total=total+float(cpu_power[i]) #so convert each node to a float and sum.
+    
+print("Total CPU power: "+ "%.1f"%total + " W")
+
+    
