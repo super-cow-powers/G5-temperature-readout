@@ -12,14 +12,17 @@ cpu_type.readline()
 
 cpu_type = cpu_type.readline().replace(',','').split(" ")[1] #In proc/cpuinfo, the model is the second line after one space.
 
-for node in os.listdir("/sys/devices/platform/windfarm.0/"): #This may differ per OS or 
+for node in os.listdir("/sys/devices/platform/windfarm.0/"): #This may differ per OS or machine.
     if node.startswith("cpu-temp"):
         cpu_temp.append(((open("/sys/devices/platform/windfarm.0/" + node).read()).strip('\n')))
     if node.startswith("cpu-power"):
         cpu_power.append(((open("/sys/devices/platform/windfarm.0/" + node).read()).strip('\n')))
 
-if (len(cpu_temp) != len(cpu_power)):
-    print("Something wrong here, check device files!")
+if (len(cpu_temp) != len(cpu_power)): #There should be the same number of devices for both temps and power
+    print("Mismatch in number of devices, check device tree!")
+
+cpu_temp.sort()
+cpu_power.sort()
 
 for i in range (0,len(cpu_temp)):
     if (cpu_type == "PPC970MP"): #Dual Core, with Quad models
